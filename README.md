@@ -4,6 +4,8 @@ A Cloudflare Worker that serves GitHub source zips with CORS headers, so a
 Pyodide page such as Datasette Lite can load the exact code from a commit or
 pull request.
 
+<details><summary>README by Claude Fable 5.2</summary>
+
 GitHub's own zip downloads (`github.com/.../archive/...zip` and
 `codeload.github.com`) send no `Access-Control-Allow-Origin` header, so
 browsers refuse to let page JavaScript read them. This Worker fetches the zip
@@ -118,3 +120,5 @@ curl -i -H "Origin: http://localhost:8000" \
 - `wrangler.toml`: Worker name and `ALLOWED_OWNER`
 - `deploy.sh`: test, deploy and smoke-test
 - `test/index.test.js`: unit tests
+
+</details>
