@@ -4,5 +4,6 @@ compatibility_date = "2025-01-01"
 workers_dev = true
 
 [vars]
-# Only repositories owned by this GitHub user or organization are proxied.
-ALLOWED_OWNER = "simonw"
+# Only repositories owned by these GitHub users or organizations (comma-separated)
+# are proxied.
+ALLOWED_OWNERS = "simonw,datasette"

@@ -1,10 +1,10 @@
 // Run with: node --test test/index.test.js
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import worker, { isAllowedOrigin, isValidRef } from "../src/index.js";
+import worker, { isAllowedOrigin, isAllowedOwner, isValidRef } from "../src/index.js";
 
 const SHA = "be0ce3e85f3b7d8e811ab01db4f0dc304f09b025";
-const ENV = { ALLOWED_OWNER: "simonw" };
+const ENV = { ALLOWED_OWNERS: "simonw, datasette" };
 const GOOD = "https://lite.datasette.io";
 
 let upstreamCalls = [];
@@ -112,6 +112,20 @@ test("other owners and bad paths are refused without calling GitHub", async () =
 test("owner check is case-insensitive", async () => {
   mockUpstream();
   assert.equal((await get(`/SimonW/datasette/${SHA}`, GOOD)).status, 200);
+  assert.equal((await get(`/Datasette/datasette-arrows/${SHA}`, GOOD)).status, 200);
+});
+
+test("multiple allowed owners", async () => {
+  mockUpstream();
+  assert.equal((await get(`/datasette/datasette-arrows/main`, GOOD)).status, 200);
+  assert.equal(upstreamCalls[0], "https://codeload.github.com/datasette/datasette-arrows/zip/main");
+  assert.equal((await get(`/evil/datasette/main`, GOOD)).status, 403);
+  assert.equal(isAllowedOwner("datasette", "simonw,datasette"), true);
+  assert.equal(isAllowedOwner("datasett", "simonw,datasette"), false);
+  assert.equal(isAllowedOwner("simonw,datasette", "simonw,datasette"), false);
+  assert.equal(isAllowedOwner("", "simonw,"), false);
+  // Defaults to simonw and datasette when unset
+  assert.equal(isAllowedOwner("datasette"), true);
 });
 
 test("methods", async () => {

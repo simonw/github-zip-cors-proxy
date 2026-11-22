@@ -53,6 +53,7 @@ check "localhost origin is allowed" 200 -H "Origin: http://localhost:8123" "$TAR
 check "other origins are refused"   403 -H "Origin: https://example.com" "$TARGET"
 check "missing origin is refused"   403 "$TARGET"
 check "other owners are refused"    403 -H "Origin: https://lite.datasette.io" "$URL/python/cpython/$SHA"
+check "datasette org is allowed"    200 -H "Origin: https://lite.datasette.io" "$URL/datasette/datasette-arrows/main"
 check "branch names work"           200 -H "Origin: https://lite.datasette.io" "$URL/simonw/datasette/main"
 check "tags work"                   200 -H "Origin: https://lite.datasette.io" "$URL/simonw/datasette/1.0a19"
 check "unknown refs are a 404"      404 -H "Origin: https://lite.datasette.io" "$URL/simonw/datasette/no-such-branch-or-tag"

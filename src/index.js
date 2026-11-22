@@ -6,7 +6,8 @@
 // {ref} is a branch, a tag or a commit SHA, and may contain slashes.
 //
 // Only requests from allowed browser origins are served, and only for
-// repositories belonging to ALLOWED_OWNER (set in wrangler.toml).
+// repositories belonging to one of ALLOWED_OWNERS (a comma-separated list
+// set in wrangler.toml).
 
 const PRODUCTION_ORIGINS = new Set(["https://lite.datasette.io"]);
 const LOCALHOST = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
@@ -17,6 +18,16 @@ const FULL_SHA = /^[0-9a-f]{40}$/;
 // with a dot (which also rules out "." and ".." path segments).
 export function isValidRef(ref) {
   return ref.split("/").every((part) => part !== "" && !part.startsWith("."));
+}
+
+const DEFAULT_OWNERS = "simonw,datasette";
+
+export function isAllowedOwner(owner, allowedOwners = DEFAULT_OWNERS) {
+  return allowedOwners
+    .split(",")
+    .map((o) => o.trim().toLowerCase())
+    .filter(Boolean)
+    .includes(owner.toLowerCase());
 }
 
 export function isAllowedOrigin(origin) {
@@ -63,8 +74,7 @@ export default {
     }
     const [, owner, repo, ref] = match;
 
-    const allowedOwner = (env && env.ALLOWED_OWNER) || "simonw";
-    if (owner.toLowerCase() !== allowedOwner.toLowerCase()) {
+    if (!isAllowedOwner(owner, (env && env.ALLOWED_OWNERS) || DEFAULT_OWNERS)) {
       return text("Forbidden: owner not allowed", 403, cors);
     }
 
